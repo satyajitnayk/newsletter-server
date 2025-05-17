@@ -1,0 +1,11 @@
+# Maximum width of each line
+max_width = 80
+
+# New, stable alternative to `fn_args_layout`
+fn_params_layout = "Tall"
+
+# Reorder imports using Rustfmt defaults (can't customize group on stable)
+reorder_imports = true
+
+# Use the 2021 edition style
+edition = "2021"
