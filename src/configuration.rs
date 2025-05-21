@@ -1,6 +1,7 @@
 //! src/configuration.rs
 
 use config::{Config, ConfigError, File};
+use secrecy::{ExposeSecret, SecretBox};
 
 #[derive(serde::Deserialize)]
 pub struct Settings {
@@ -11,7 +12,7 @@ pub struct Settings {
 #[derive(serde::Deserialize)]
 pub struct DataBaseSettings {
     pub username: String,
-    pub password: String,
+    pub password: SecretBox<String>,
     pub port: u16,
     pub host: String,
     pub database_name: String,
@@ -19,22 +20,25 @@ pub struct DataBaseSettings {
 
 impl DataBaseSettings {
     /// returns connection string such as `postgres://postgres:password@127.0.0.1:5432/newsletter`
-    pub fn connection_string(&self) -> String {
-        format!(
+    pub fn connection_string(&self) -> SecretBox<String> {
+        SecretBox::new(Box::new(format!(
             "postgres://{}:{}@{}:{}/{}",
             self.username,
-            self.password,
+            self.password.expose_secret(),
             self.host,
             self.port,
             self.database_name
-        )
+        )))
     }
 
-    pub fn connection_string_without_db(&self) -> String {
-        format!(
+    pub fn connection_string_without_db(&self) -> SecretBox<String> {
+        SecretBox::new(Box::new(format!(
             "postgres://{}:{}@{}:{}",
-            self.username, self.password, self.host, self.port
-        )
+            self.username,
+            self.password.expose_secret(),
+            self.host,
+            self.port
+        )))
     }
 }
 
